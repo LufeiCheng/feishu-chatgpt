@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"start-feishubot/initialization"
 	"start-feishubot/services/openai"
 )
 
@@ -21,6 +22,8 @@ func (*MessageAction) Execute(a *ActionInfo) bool {
 	}
 	msg = append(msg, completions)
 	a.handler.sessionCache.SetMsg(*a.info.sessionId, msg)
+	// print the session and the message
+	initialization.Logger.Printf("session: %v, msg: %v, msgId: %v", *a.info.sessionId, completions.Content, *a.info.msgId)
 	//if new topic
 	if len(msg) == 2 {
 		//fmt.Println("new topic", msg[1].Content)
