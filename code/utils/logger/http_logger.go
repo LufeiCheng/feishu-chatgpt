@@ -45,13 +45,29 @@ func (l *httpLogger) Log(log string) {
 
 // send send log to http server
 func (l *httpLogger) send() {
-	_, err := http.NewRequest(l.method, l.url, strings.NewReader(strings.Join(*l.logCache, "----")))
+	body := strings.NewReader(strings.Join(*l.logCache, "----"))
+	req, err := http.NewRequest(l.method, l.url, body)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("请求初始化失败", err)
 		return
 	}
+	req.Header.Set("Content-Type", "text/plain")
+
+	// send request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("发送请求失败", err)
+		return
+	}
+	defer resp.Body.Close()
+
 	// reset cache
 	*l.logCache = []string{}
+	// reset last send timestamp
+	l.lastSendTime = time.Now().Unix()
+
+	fmt.Println("response Status:", resp.Status)
 }
 
 // implement Write interface
