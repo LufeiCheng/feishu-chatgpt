@@ -10,6 +10,7 @@ import (
 
 	larkcard "github.com/larksuite/oapi-sdk-go/v3/card"
 
+	larkcore "github.com/larksuite/oapi-sdk-go/v3/core"
 	larkim "github.com/larksuite/oapi-sdk-go/v3/service/im/v1"
 )
 
@@ -54,7 +55,7 @@ func (m MessageHandler) msgReceivedHandler(ctx context.Context, event *larkim.P2
 		fmt.Println("unknown chat type")
 		return nil
 	}
-	//fmt.Println(larkcore.Prettify(event.Event.Message))
+	initialization.Logger.Println(larkcore.Prettify(event))
 
 	msgType, err := judgeMsgType(event)
 	if err != nil {

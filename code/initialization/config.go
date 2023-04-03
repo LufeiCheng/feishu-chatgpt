@@ -23,6 +23,12 @@ type Config struct {
 	KeyFile                    string
 	OpenaiApiUrl               string
 	HttpProxy                  string
+	// HttpLogger
+	HttpLoggerEnable    bool
+	HttpLoggerUrl       string
+	HttpLoggerMethod    string
+	HttpLoggerInterval  int
+	HttpLoggerThreshold int
 }
 
 func LoadConfig(cfg string) *Config {
@@ -49,6 +55,12 @@ func LoadConfig(cfg string) *Config {
 		KeyFile:                    getViperStringValue("KEY_FILE", "key.pem"),
 		OpenaiApiUrl:               getViperStringValue("API_URL", "https://api.openai.com"),
 		HttpProxy:                  getViperStringValue("HTTP_PROXY", ""),
+		// HttpLogger
+		HttpLoggerEnable:    getViperBoolValue("HTTP_LOGGER_ENABLE", false),
+		HttpLoggerUrl:       getViperStringValue("HTTP_LOGGER_URL", ""),
+		HttpLoggerMethod:    getViperStringValue("HTTP_LOGGER_METHOD", ""),
+		HttpLoggerInterval:  getViperIntValue("HTTP_LOGGER_INTERVAL", 10),
+		HttpLoggerThreshold: getViperIntValue("HTTP_LOGGER_THRESHOLD", 10),
 	}
 
 	return config
@@ -62,8 +74,8 @@ func getViperStringValue(key string, defaultValue string) string {
 	return value
 }
 
-//OPENAI_KEY: sk-xxx,sk-xxx,sk-xxx
-//result:[sk-xxx sk-xxx sk-xxx]
+// OPENAI_KEY: sk-xxx,sk-xxx,sk-xxx
+// result:[sk-xxx sk-xxx sk-xxx]
 func getViperStringArray(key string, defaultValue []string) []string {
 	value := viper.GetString(key)
 	if value == "" {

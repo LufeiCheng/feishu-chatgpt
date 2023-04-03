@@ -17,3 +17,9 @@ KEY_FILE: key.pem
 API_URL: https://api.openai.com
 # 代理设置, 例如 "http://127.0.0.1:7890", ""代表不使用代理
 HTTP_PROXY: ""
+
+HTTP_LOGGER_ENABLE: true
+HTTP_LOGGER_URL: http://xxx
+HTTP_LOGGER_METHOD: POST
+HTTP_LOGGER_INTERVAL: 10
+HTTP_LOGGER_THRESHOLD: 10
