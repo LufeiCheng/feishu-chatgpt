@@ -290,7 +290,35 @@ dockerproxy.com/leizhenpeng/feishu-chatgpt:latest
 卡片回调地址: http://IP:9000/webhook/card
 
 把它填入飞书后台
-<br>
+
+--- 
+
+部署azure版本
+
+```bash
+docker build -t feishu-chatgpt:latest .
+docker run -d --name feishu-chatgpt -p 9000:9000 \
+--env APP_ID=xxx \
+--env APP_SECRET=xxx \
+--env APP_ENCRYPT_KEY=xxx \
+--env APP_VERIFICATION_TOKEN=xxx \
+--env BOT_NAME=chatGpt \
+--env AZURE_ON=true \
+--env AZURE_API_VERSION=xxx \
+--env AZURE_RESOURCE_NAME=xxx \
+--env AZURE_DEPLOYMENT_NAME=xxx \
+--env AZURE_OPENAI_TOKEN=xxx \
+feishu-chatgpt:latest
+```
+
+注意:
+
+- `BOT_NAME` 为飞书机器人名称，例如 `chatGpt`
+- `AZURE_ON` 为是否使用azure ,请填写 `true`
+- `AZURE_API_VERSION` 为azure api版本 例如 `2023-03-15-preview`
+- `AZURE_RESOURCE_NAME` 为azure 资源名称 类似 `https://{AZURE_RESOURCE_NAME}.openai.azure.com`
+- `AZURE_DEPLOYMENT_NAME` 为azure 部署名称 类似 `https://{AZURE_RESOURCE_NAME}.openai.azure.com/deployments/{AZURE_DEPLOYMENT_NAME}/chat/completions`
+- `AZURE_OPENAI_TOKEN` 为azure openai token
 
 </details>
 
@@ -345,6 +373,7 @@ docker compose down
       <img src='https://user-images.githubusercontent.com/50035229/223944230-aff586be-31cc-40de-9b1a-7d4e259d54dd.png' alt='' width='800'/>
       <img src='https://user-images.githubusercontent.com/50035229/223944350-917d115c-6c82-4d8b-9ec8-b5c82331a2dc.png' alt='' width='800'/>
       <img src='https://user-images.githubusercontent.com/50035229/223944381-97396156-f5e2-467f-aaf6-b1f6e1c446b2.png' alt='' width='800'/>
+      <img src='https://user-images.githubusercontent.com/50035229/230003546-36450f2f-b6e9-4292-8b40-3a4aa8a05a64.png' alt='' width='800'/>
       <img src='https://user-images.githubusercontent.com/50035229/223945122-f7ab3d9a-6742-43d2-970e-ddb0f284c7fa.png' alt='' width='800'/>
       <img src='https://user-images.githubusercontent.com/50035229/223944507-8d1a08d7-8b5b-4f32-a90d-fd338164ec82.png' alt='' width='800'/>
       <img src='https://user-images.githubusercontent.com/50035229/223944515-fb505e84-c840-484a-8df5-612f60bf27ea.png' alt='' width='800'/>
@@ -352,7 +381,8 @@ docker compose down
     </p>
 </details>
 
-- 获取 [OpenAI](https://platform.openai.com/account/api-keys) 的 KEY
+
+- 获取 [OpenAI](https://platform.openai.com/account/api-keys) 的 KEY( 🙉 下面有免费的 KEY 供大家测试部署 )
 - 创建 [飞书](https://open.feishu.cn/) 机器人
     1. 前往[开发者平台](https://open.feishu.cn/app?lang=zh-CN)创建应用,并获取到 APPID 和 Secret
     2. 前往`应用功能-机器人`, 创建机器人
@@ -382,13 +412,24 @@ docker compose down
 
 更多介绍，参考[飞书上的小计算器: Go 机器人来啦](https://www.bilibili.com/video/BV12M41187rV/)
 
+## 免费 Openai_Key
+
+<a href='https://freeopenai.xyz/' >
+<img src='https://user-images.githubusercontent.com/50035229/229976556-99e8ac26-c8c3-4f56-902d-a52a7f2e50d5.png' alt='' width='330'/>
+</a>
+
+这里有些[免费的OpenAI Key](https://freeopenai.xyz/), 大家可测试使用。
+
+
 ## 更多交流
+
 
 如需协助部署，或者其他定制服务，可联系下面的WeChat，支持发票~
 
 遇到问题，可以加入飞书群沟通~
 
-<img src='./docs/talk.png' alt='' width='200'/>
+
+<img src='https://user-images.githubusercontent.com/50035229/229813025-516d09f7-7de3-46b5-8407-f0bbf8b44344.png' alt='' width='200'/>
 
 ## 交朋友 或者 鼓励一下
 

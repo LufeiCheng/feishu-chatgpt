@@ -23,12 +23,19 @@ type Config struct {
 	KeyFile                    string
 	OpenaiApiUrl               string
 	HttpProxy                  string
+
 	// HttpLogger
 	HttpLoggerEnable    bool
 	HttpLoggerUrl       string
 	HttpLoggerMethod    string
 	HttpLoggerInterval  int
 	HttpLoggerThreshold int
+
+	AzureOn                    bool
+	AzureApiVersion            string
+	AzureDeploymentName        string
+	AzureResourceName          string
+	AzureOpenaiToken           string
 }
 
 func LoadConfig(cfg string) *Config {
@@ -61,6 +68,12 @@ func LoadConfig(cfg string) *Config {
 		HttpLoggerMethod:    getViperStringValue("HTTP_LOGGER_METHOD", ""),
 		HttpLoggerInterval:  getViperIntValue("HTTP_LOGGER_INTERVAL", 10),
 		HttpLoggerThreshold: getViperIntValue("HTTP_LOGGER_THRESHOLD", 10),
+
+		AzureOn:                    getViperBoolValue("AZURE_ON", false),
+		AzureApiVersion:            getViperStringValue("AZURE_API_VERSION", "2023-03-15-preview"),
+		AzureDeploymentName:        getViperStringValue("AZURE_DEPLOYMENT_NAME", ""),
+		AzureResourceName:          getViperStringValue("AZURE_RESOURCE_NAME", ""),
+		AzureOpenaiToken:           getViperStringValue("AZURE_OPENAI_TOKEN", ""),
 	}
 
 	return config
