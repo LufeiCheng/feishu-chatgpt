@@ -3,13 +3,13 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"start-feishubot/initialization"
 	"start-feishubot/services"
 	"start-feishubot/services/openai"
-	"strings"
 
 	larkcard "github.com/larksuite/oapi-sdk-go/v3/card"
-
 	larkcore "github.com/larksuite/oapi-sdk-go/v3/core"
 	larkim "github.com/larksuite/oapi-sdk-go/v3/service/im/v1"
 )
@@ -46,7 +46,6 @@ func judgeMsgType(event *larkim.P2MessageReceiveV1) (string, error) {
 	default:
 		return "", fmt.Errorf("unknown message type: %v", *msgType)
 	}
-
 }
 
 func (m MessageHandler) msgReceivedHandler(ctx context.Context, event *larkim.P2MessageReceiveV1) error {
@@ -97,6 +96,7 @@ func (m MessageHandler) msgReceivedHandler(ctx context.Context, event *larkim.P2
 		&EmptyAction{},           //空消息处理
 		&ClearAction{},           //清除消息处理
 		&PicAction{},             //图片处理
+		&AIModeAction{},          //模式切换处理
 		&RoleListAction{},        //角色列表处理
 		&HelpAction{},            //帮助处理
 		&BalanceAction{},         //余额处理
