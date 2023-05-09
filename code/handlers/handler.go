@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -10,7 +11,7 @@ import (
 	"start-feishubot/services/openai"
 
 	larkcard "github.com/larksuite/oapi-sdk-go/v3/card"
-	larkcore "github.com/larksuite/oapi-sdk-go/v3/core"
+	// larkcore "github.com/larksuite/oapi-sdk-go/v3/core"
 	larkim "github.com/larksuite/oapi-sdk-go/v3/service/im/v1"
 )
 
@@ -54,8 +55,9 @@ func (m MessageHandler) msgReceivedHandler(ctx context.Context, event *larkim.P2
 		fmt.Println("unknown chat type")
 		return nil
 	}
-	initialization.Logger.Printf("Header: %v, Event: %v",
-		larkcore.Prettify(event.EventV2Base.Header), larkcore.Prettify(event.Event))
+	headerJson, _ := json.Marshal(event.EventV2Base.Header)
+	eventJson, _ := json.Marshal(event.Event)
+	initialization.Logger.Printf("Header: %s, Event: %s", headerJson, eventJson)
 
 	msgType, err := judgeMsgType(event)
 	if err != nil {
