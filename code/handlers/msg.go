@@ -663,6 +663,16 @@ func sendNewTopicCard(ctx context.Context,
 	replyCard(ctx, msgId, newCard)
 }
 
+func sendTopicCard(ctx context.Context,
+	sessionId *string, msgId *string, content string) error{
+	newCard, _ := newSendCard(
+		withHeader("👻️ 话题已更新", larkcard.TemplateBlue),
+		withMainText(content),
+		withNote("提醒：点击对话框参与回复，可保持话题连贯"))
+	err := replyCard(ctx, msgId, newCard)
+	return err
+}
+
 func sendHelpCard(ctx context.Context,
 	sessionId *string, msgId *string) {
 	newCard, _ := newSendCard(

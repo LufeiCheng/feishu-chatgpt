@@ -18,8 +18,7 @@ func (*MessageAction) Execute(a *ActionInfo) bool {
 	aiMode := a.handler.sessionCache.GetAIMode(*a.info.sessionId)
 	completions, err := a.handler.gpt.Completions(msg, aiMode)
 	if err != nil {
-		replyMsg(*a.ctx, fmt.Sprintf(
-			"🤖️：消息机器人摆烂了，请稍后再试～\n错误信息: %v", err), a.info.msgId)
+		sendTopicCard(*a.ctx, a.info.sessionId, a.info.msgId, fmt.Sprintf("🤖️：消息机器人摆烂了，请稍后再试～\n错误信息: %v", err))
 		return false
 	}
 	msg = append(msg, completions)
@@ -33,10 +32,10 @@ func (*MessageAction) Execute(a *ActionInfo) bool {
 			completions.Content)
 		return false
 	}
-	err = replyMsg(*a.ctx, completions.Content, a.info.msgId)
+
+	err = sendTopicCard(*a.ctx, a.info.sessionId, a.info.msgId, completions.Content)
 	if err != nil {
-		replyMsg(*a.ctx, fmt.Sprintf(
-			"🤖️：消息机器人摆烂了，请稍后再试～\n错误信息: %v", err), a.info.msgId)
+		sendTopicCard(*a.ctx, a.info.sessionId, a.info.msgId, fmt.Sprintf("🤖️：消息机器人摆烂了，请稍后再试～\n错误信息: %v", err))
 		return false
 	}
 	return true
