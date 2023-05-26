@@ -5,11 +5,14 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
+	Initialized                bool
 	FeishuAppId                string
 	FeishuAppSecret            string
 	FeishuAppEncryptKey        string
@@ -23,6 +26,7 @@ type Config struct {
 	KeyFile                    string
 	OpenaiApiUrl               string
 	HttpProxy                  string
+	OpenAIHttpClientTimeOut    int
 
 	// HttpLogger
 	HttpLoggerEnable    bool
@@ -31,11 +35,30 @@ type Config struct {
 	HttpLoggerInterval  int
 	HttpLoggerThreshold int
 
-	AzureOn                    bool
-	AzureApiVersion            string
-	AzureDeploymentName        string
-	AzureResourceName          string
-	AzureOpenaiToken           string
+	AzureOn             bool
+	AzureApiVersion     string
+	AzureDeploymentName string
+	AzureResourceName   string
+	AzureOpenaiToken    string
+}
+
+var (
+	cfg    = pflag.StringP("config", "c", "./config.yaml", "apiserver config file path.")
+	config *Config
+	once   sync.Once
+)
+
+/*
+GetConfig will call LoadConfig once and return a global singleton, you should always use this function to get config
+*/
+func GetConfig() *Config {
+
+	once.Do(func() {
+		config = LoadConfig(*cfg)
+		config.Initialized = true
+	})
+
+	return config
 }
 
 func LoadConfig(cfg string) *Config {
@@ -62,6 +85,8 @@ func LoadConfig(cfg string) *Config {
 		KeyFile:                    getViperStringValue("KEY_FILE", "key.pem"),
 		OpenaiApiUrl:               getViperStringValue("API_URL", "https://api.openai.com"),
 		HttpProxy:                  getViperStringValue("HTTP_PROXY", ""),
+		OpenAIHttpClientTimeOut:    getViperIntValue("OPENAI_HTTP_CLIENT_TIMEOUT", 550),
+
 		// HttpLogger
 		HttpLoggerEnable:    getViperBoolValue("HTTP_LOGGER_ENABLE", false),
 		HttpLoggerUrl:       getViperStringValue("HTTP_LOGGER_URL", ""),
@@ -69,11 +94,11 @@ func LoadConfig(cfg string) *Config {
 		HttpLoggerInterval:  getViperIntValue("HTTP_LOGGER_INTERVAL", 10),
 		HttpLoggerThreshold: getViperIntValue("HTTP_LOGGER_THRESHOLD", 10),
 
-		AzureOn:                    getViperBoolValue("AZURE_ON", false),
-		AzureApiVersion:            getViperStringValue("AZURE_API_VERSION", "2023-03-15-preview"),
-		AzureDeploymentName:        getViperStringValue("AZURE_DEPLOYMENT_NAME", ""),
-		AzureResourceName:          getViperStringValue("AZURE_RESOURCE_NAME", ""),
-		AzureOpenaiToken:           getViperStringValue("AZURE_OPENAI_TOKEN", ""),
+		AzureOn:             getViperBoolValue("AZURE_ON", false),
+		AzureApiVersion:     getViperStringValue("AZURE_API_VERSION", "2023-03-15-preview"),
+		AzureDeploymentName: getViperStringValue("AZURE_DEPLOYMENT_NAME", ""),
+		AzureResourceName:   getViperStringValue("AZURE_RESOURCE_NAME", ""),
+		AzureOpenaiToken:    getViperStringValue("AZURE_OPENAI_TOKEN", ""),
 	}
 
 	return config

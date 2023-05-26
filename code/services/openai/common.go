@@ -192,6 +192,27 @@ func (gpt *ChatGPT) sendRequestWithBodyType(link, method string,
 	return err
 }
 
+func GetProxyClient(proxyString string) (*http.Client, error) {
+	var client *http.Client
+	timeOutDuration := time.Duration(initialization.GetConfig().OpenAIHttpClientTimeOut) * time.Second
+	if proxyString == "" {
+		client = &http.Client{Timeout: timeOutDuration}
+	} else {
+		proxyUrl, err := url.Parse(proxyString)
+		if err != nil {
+			return nil, err
+		}
+		transport := &http.Transport{
+			Proxy: http.ProxyURL(proxyUrl),
+		}
+		client = &http.Client{
+			Transport: transport,
+			Timeout:   timeOutDuration,
+		}
+	}
+	return client, nil
+}
+
 func NewChatGPT(config initialization.Config) *ChatGPT {
 	var lb *loadbalancer.LoadBalancer
 	if config.AzureOn {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 
 	"start-feishubot/handlers"
@@ -16,14 +17,15 @@ import (
 	"github.com/spf13/pflag"
 )
 
-var (
-	cfg = pflag.StringP("config", "c", "./config.yaml", "apiserver config file path.")
-)
-
 func main() {
 	initialization.InitRoleList()
 	pflag.Parse()
-	config := initialization.LoadConfig(*cfg)
+
+	config := initialization.GetConfig()
+	// 打印一下实际读取到的配置
+	globalConfigPrettyString, _ := json.MarshalIndent(config, "", "    ")
+	log.Println(string(globalConfigPrettyString))
+
 	initialization.LoadLarkClient(*config)
 	initialization.InitLogger(*config)
 	gpt := openai.NewChatGPT(*config)

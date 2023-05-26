@@ -8,6 +8,7 @@ import (
 
 	"start-feishubot/initialization"
 	"start-feishubot/services"
+	"start-feishubot/services/chatgpt"
 	"start-feishubot/services/openai"
 
 	larkcard "github.com/larksuite/oapi-sdk-go/v3/card"
@@ -103,7 +104,9 @@ func (m MessageHandler) msgReceivedHandler(ctx context.Context, event *larkim.P2
 		&HelpAction{},            //帮助处理
 		&BalanceAction{},         //余额处理
 		&RolePlayAction{},        //角色扮演处理
-		&MessageAction{},         //消息处理
+		&MessageAction{
+			chatgpt: chatgpt.NewGpt3(&m.config),
+		}, //消息处理
 
 	}
 	chain(data, actions...)
