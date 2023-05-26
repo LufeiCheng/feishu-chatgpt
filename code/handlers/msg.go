@@ -728,7 +728,9 @@ func updateFinalCard(
 	msgId *string,
 ) error {
 	newCard, _ := newSendCardWithOutHeader(
-		withMainText(msg))
+		withMainText(msg),
+		withNote("提醒：点击对话框参与回复，可保持话题连贯"),
+	)
 	err := PatchCard(ctx, msgId, newCard)
 	if err != nil {
 		return err

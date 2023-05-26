@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"start-feishubot/services/chatgpt"
+	"start-feishubot/services/dify"
 	"start-feishubot/services/openai"
 	"strings"
 	"time"
@@ -13,7 +13,7 @@ import (
 )
 
 type MessageAction struct { /*消息*/
-	chatgpt *chatgpt.ChatGPT
+	chatgpt *dify.Dify
 }
 
 func (m *MessageAction) Execute(a *ActionInfo) bool {
@@ -40,6 +40,8 @@ func (m *MessageAction) Execute(a *ActionInfo) bool {
 	msg = append(msg, openai.Messages{
 		Role: "user", Content: a.info.qParsed,
 	})
+	conversation_id := a.handler.sessionCache.GetConversationId(*a.info.sessionId)
+
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
@@ -54,7 +56,7 @@ func (m *MessageAction) Execute(a *ActionInfo) bool {
 		//log.Printf("UserId: %s , Request: %s", a.info.userId, msg)
 
 		// 这一步可能会引发panic，原因是chatResponseStream被主流程关闭，再次写入会引发panic
-		if err := m.chatgpt.StreamChat(*a.ctx, msg, chatResponseStream); err != nil {
+		if err := m.chatgpt.StreamChat(*a.ctx, a.info.qParsed, conversation_id, chatResponseStream); err != nil {
 			err := updateFinalCard(*a.ctx, "聊天失败", cardId)
 			if err != nil {
 				printErrorMessage(a, msg, err)

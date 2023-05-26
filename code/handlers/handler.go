@@ -8,7 +8,8 @@ import (
 
 	"start-feishubot/initialization"
 	"start-feishubot/services"
-	"start-feishubot/services/chatgpt"
+	// "start-feishubot/services/chatgpt"
+	"start-feishubot/services/dify"
 	"start-feishubot/services/openai"
 
 	larkcard "github.com/larksuite/oapi-sdk-go/v3/card"
@@ -105,7 +106,8 @@ func (m MessageHandler) msgReceivedHandler(ctx context.Context, event *larkim.P2
 		&BalanceAction{},         //余额处理
 		&RolePlayAction{},        //角色扮演处理
 		&MessageAction{
-			chatgpt: chatgpt.NewGpt3(&m.config),
+			// chatgpt: chatgpt.NewGpt3(&m.config),
+			chatgpt: dify.NewDify(&m.config),
 		}, //消息处理
 
 	}
@@ -134,9 +136,5 @@ func (m MessageHandler) judgeIfMentionMe(mention []*larkim.
 }
 
 func AzureModeCheck(a *ActionInfo) bool {
-	if a.handler.config.AzureOn {
-		//sendMsg(*a.ctx, "Azure Openai 接口下，暂不支持此功能", a.info.chatId)
-		return false
-	}
-	return true
+	return !(a.handler.config.AzureOn)
 }

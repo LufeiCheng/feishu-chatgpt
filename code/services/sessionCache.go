@@ -17,10 +17,11 @@ type PicSetting struct {
 type Resolution string
 
 type SessionMeta struct {
-	Mode       SessionMode       `json:"mode"`
-	Msg        []openai.Messages `json:"msg,omitempty"`
-	PicSetting PicSetting        `json:"pic_setting,omitempty"`
-	AIMode     openai.AIMode     `json:"ai_mode,omitempty"`
+	Mode           SessionMode       `json:"mode"`
+	Msg            []openai.Messages `json:"msg,omitempty"`
+	PicSetting     PicSetting        `json:"pic_setting,omitempty"`
+	AIMode         openai.AIMode     `json:"ai_mode,omitempty"`
+	ConversationId string            `json:"conversation_id,omitempty"`
 }
 
 const (
@@ -43,6 +44,8 @@ type SessionServiceCacheInterface interface {
 	GetMode(sessionId string) SessionMode
 	GetAIMode(sessionId string) openai.AIMode
 	SetAIMode(sessionId string, aiMode openai.AIMode)
+	SetConversationId(sessionId string, conversationId string)
+	GetConversationId(sessionId string) string
 	SetPicResolution(sessionId string, resolution Resolution)
 	GetPicResolution(sessionId string) string
 	Clear(sessionId string)
@@ -96,6 +99,30 @@ func (s *SessionService) GetAIMode(sessionId string) openai.AIMode {
 	}
 	sessionMeta := sessionContext.(*SessionMeta)
 	return sessionMeta.AIMode
+}
+
+// Get conversation id from the cache.
+func (s *SessionService) GetConversationId(sessionId string) string {
+	sessionContext, ok := s.cache.Get(sessionId)
+	if !ok {
+		return ""
+	}
+	sessionMeta := sessionContext.(*SessionMeta)
+	return sessionMeta.ConversationId
+}
+
+// Set conversation id to the cache.
+func (s *SessionService) SetConversationId(sessionId string, conversationId string) {
+	maxCacheTime := time.Hour * 12
+	sessionContext, ok := s.cache.Get(sessionId)
+	if !ok {
+		sessionMeta := &SessionMeta{ConversationId: conversationId}
+		s.cache.Set(sessionId, sessionMeta, maxCacheTime)
+		return
+	}
+	sessionMeta := sessionContext.(*SessionMeta)
+	sessionMeta.ConversationId = conversationId
+	s.cache.Set(sessionId, sessionMeta, maxCacheTime)
 }
 
 // SetAIMode set the ai mode for the session.
