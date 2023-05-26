@@ -17,11 +17,6 @@ type MessageAction struct { /*消息*/
 }
 
 func (m *MessageAction) Execute(a *ActionInfo) bool {
-	cardId, err2 := sendOnProcess(a)
-	if err2 != nil {
-		return false
-	}
-
 	answer := ""
 	chatResponseStream := make(chan string)
 	defer close(chatResponseStream)
@@ -29,22 +24,36 @@ func (m *MessageAction) Execute(a *ActionInfo) bool {
 	done := make(chan struct{}, 3) // 添加 done 信号，保证主流程正确退出
 	defer close(done)
 
-	noContentTimeout := time.AfterFunc(20*time.Second, func() {
-		pp.Println("no content timeout")
-		updateFinalCard(*a.ctx, "请求超时", cardId)
-		done <- struct{}{} // 发送 done 信号
-	})
-	defer noContentTimeout.Stop()
-
 	msg := a.handler.sessionCache.GetMsg(*a.info.sessionId)
 	msg = append(msg, openai.Messages{
 		Role: "user", Content: a.info.qParsed,
 	})
+	var cardHeader string
+
+	if len(msg) <= 2 {
+		cardHeader = "👻️ 已开启新的话题"
+	} else {
+		cardHeader = "👻️ 话题已更新"
+	}
+
+	// 生成卡片
+	cardId, err2 := sendOnProcess(a, cardHeader)
+	if err2 != nil {
+		return false
+	}
+
+	noContentTimeout := time.AfterFunc(20*time.Second, func() {
+		pp.Println("no content timeout")
+		updateFinalCard(*a.ctx, "请求超时", cardId, cardHeader)
+		done <- struct{}{} // 发送 done 信号
+	})
+	defer noContentTimeout.Stop()
+
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
 				fmt.Println("panic recover", err)
-				err := updateFinalCard(*a.ctx, "聊天失败", cardId)
+				err := updateFinalCard(*a.ctx, "聊天失败", cardId, cardHeader)
 				if err != nil {
 					printErrorMessage(a, msg, err)
 				}
@@ -55,7 +64,7 @@ func (m *MessageAction) Execute(a *ActionInfo) bool {
 
 		// 这一步可能会引发panic，原因是chatResponseStream被主流程关闭，再次写入会引发panic
 		if err := m.chatgpt.StreamChat(*a.ctx, msg, chatResponseStream); err != nil {
-			err := updateFinalCard(*a.ctx, "聊天失败", cardId)
+			err := updateFinalCard(*a.ctx, "聊天失败", cardId, cardHeader)
 			if err != nil {
 				printErrorMessage(a, msg, err)
 			}
@@ -78,13 +87,13 @@ func (m *MessageAction) Execute(a *ActionInfo) bool {
 			answer += res
 			//pp.Println("answer", answer)
 		case <-ticker.C: //
-			err := updateTextCard(*a.ctx, answer, cardId)
+			err := updateTextCard(*a.ctx, answer, cardId, cardHeader)
 			if err != nil {
 				printErrorMessage(a, msg, err)
 				return false
 			}
 		case <-done: // 添加 done 信号的处理
-			err := updateFinalCard(*a.ctx, answer, cardId)
+			err := updateFinalCard(*a.ctx, answer, cardId, cardHeader)
 			if err != nil {
 				printErrorMessage(a, msg, err)
 				return false
@@ -114,9 +123,9 @@ func printErrorMessage(a *ActionInfo, msg []openai.Messages, err error) {
 	log.Printf("Failed request: UserId: %s , Request: %s , Err: %s", a.info.userId, msg, err)
 }
 
-func sendOnProcess(a *ActionInfo) (*string, error) {
+func sendOnProcess(a *ActionInfo, cardHeader string) (*string, error) {
 	// send 正在处理中
-	cardId, err := sendOnProcessCard(*a.ctx, a.info.sessionId, a.info.msgId)
+	cardId, err := sendOnProcessCard(*a.ctx, a.info.sessionId, a.info.msgId, cardHeader)
 	if err != nil {
 		return nil, err
 	}

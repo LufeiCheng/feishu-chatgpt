@@ -83,7 +83,7 @@ func newSendCard(
 	config := larkcard.NewMessageCardConfig().
 		WideScreenMode(false).
 		EnableForward(true).
-		UpdateMulti(false).
+		UpdateMulti(true).
 		Build()
 	var aElementPool []larkcard.MessageCardElement
 	for _, element := range elements {
@@ -638,8 +638,9 @@ func newSendCardWithOutHeader(
 }
 
 func sendOnProcessCard(ctx context.Context,
-	sessionId *string, msgId *string) (*string, error) {
-	newCard, _ := newSendCardWithOutHeader(
+	sessionId *string, msgId *string, header string) (*string, error) {
+	newCard, _ := newSendCard(
+		withHeader(header, larkcard.TemplateBlue),
 		withNote("正在思考，请稍等..."))
 	id, err := replyCardWithBackId(ctx, msgId, newCard)
 	if err != nil {
@@ -712,8 +713,9 @@ func PatchCard(ctx context.Context, msgId *string,
 }
 
 func updateTextCard(ctx context.Context, msg string,
-	msgId *string) error {
-	newCard, _ := newSendCardWithOutHeader(
+	msgId *string, header string) error {
+	newCard, _ := newSendCard(
+		withHeader(header, larkcard.TemplateBlue),
 		withMainText(msg),
 		withNote("正在生成，请稍等..."))
 	err := PatchCard(ctx, msgId, newCard)
@@ -726,8 +728,10 @@ func updateFinalCard(
 	ctx context.Context,
 	msg string,
 	msgId *string,
+	header string,
 ) error {
-	newCard, _ := newSendCardWithOutHeader(
+	newCard, _ := newSendCard(
+		withHeader(header, larkcard.TemplateBlue),
 		withMainText(msg),
 		withNote("提醒：点击对话框参与回复，可保持话题连贯"),
 	)
