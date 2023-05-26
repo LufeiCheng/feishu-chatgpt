@@ -16,7 +16,7 @@ type Messages struct {
 	Inputs         map[string]string `json:"inputs"`
 	Query          string            `json:"query"`
 	ResponseMode   string            `json:"response_mode"`
-	ConversationId string            `json:"conversation_id"`
+	ConversationId *string           `json:"conversation_id"`
 	User           string            `json:"user"`
 }
 
@@ -48,7 +48,7 @@ func NewDify(config *initialization.Config) *Dify {
 }
 
 func (c *Dify) StreamChat(ctx context.Context,
-	query string, converstationId string,
+	query string, converstationId *string,
 	responseStream chan string) error {
 
 	// generate msg
@@ -105,6 +105,7 @@ func (c *Dify) StreamChatWithHistory(ctx context.Context, msg Messages, maxToken
 			return err
 		}
 		responseStream <- resBody.Answer
+		*msg.ConversationId = resBody.ConversationId
 	}
 	return nil
 }

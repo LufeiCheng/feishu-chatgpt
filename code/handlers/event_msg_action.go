@@ -56,7 +56,7 @@ func (m *MessageAction) Execute(a *ActionInfo) bool {
 		//log.Printf("UserId: %s , Request: %s", a.info.userId, msg)
 
 		// 这一步可能会引发panic，原因是chatResponseStream被主流程关闭，再次写入会引发panic
-		if err := m.chatgpt.StreamChat(*a.ctx, a.info.qParsed, conversation_id, chatResponseStream); err != nil {
+		if err := m.chatgpt.StreamChat(*a.ctx, a.info.qParsed, &conversation_id, chatResponseStream); err != nil {
 			err := updateFinalCard(*a.ctx, "聊天失败", cardId)
 			if err != nil {
 				printErrorMessage(a, msg, err)
@@ -95,6 +95,7 @@ func (m *MessageAction) Execute(a *ActionInfo) bool {
 				Role: "assistant", Content: answer,
 			})
 			a.handler.sessionCache.SetMsg(*a.info.sessionId, msg)
+			a.handler.sessionCache.SetConversationId(*a.info.sessionId, conversation_id)
 
 			log.Printf("\n\n\n")
 			log.Printf("Success request: UserId: %s , Request: %s , Response: %s", a.info.userId, msg, answer)
