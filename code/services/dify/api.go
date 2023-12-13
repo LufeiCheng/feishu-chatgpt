@@ -67,7 +67,7 @@ func (c *Dify) StreamChat(ctx context.Context,
 func (c *Dify) StreamChatWithHistory(ctx context.Context, msg Messages, maxTokens int,
 	responseStream chan string,
 ) error {
-	url := "http://152.32.168.165:8008/v1/chat-messages"
+	url := "http://ai.opscloudwise.com:8008/v1/chat-messages"
 	method := "POST"
 	requestBodyData, err := json.Marshal(msg)
 	if err != nil {
