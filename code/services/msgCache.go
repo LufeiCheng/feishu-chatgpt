@@ -32,7 +32,7 @@ func (u MsgService) Clear(userId string) bool {
 
 func GetMsgCache() MsgCacheInterface {
 	if msgService == nil {
-		msgService = &MsgService{cache: cache.New(30*time.Minute, 30*time.Minute)}
+		msgService = &MsgService{cache: cache.New(10*60*time.Minute, 30*time.Minute)}
 	}
 	return msgService
 }

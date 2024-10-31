@@ -109,7 +109,7 @@ func (m MessageHandler) msgReceivedHandler(ctx context.Context, event *larkim.P2
 		}, //消息处理
 
 	}
-	chain(data, actions...)
+	go chain(data, actions...)
 	return nil
 }
 
